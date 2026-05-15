@@ -190,11 +190,21 @@ set(MayoCore_LinkDirectories)
 set(MayoCore_LinkLibraries)
 set(MayoIO_LinkLibraries)
 
+
 find_package(Threads REQUIRED)
 list(APPEND MayoCore_LinkLibraries Threads::Threads)
 
 if(MSVC)
     list(APPEND MayoCore_LinkLibraries Opengl32 User32)
+    # OCCT 核心库
+    list(APPEND MayoCore_LinkLibraries
+        TKernel
+        TKMath
+        TKGeomBase
+        TKGeomAlgo
+        TKTopAlgo
+        TKService
+    )
 elseif(APPLE)
     list(APPEND MayoCore_LinkLibraries iconv)
 elseif(HAIKU)
@@ -209,6 +219,7 @@ set(
     Mayo_IncludeDirectories
     src/3rdparty
     ${CMAKE_BINARY_DIR}
+    G:/vcpkg/installed/x64-windows/include/opencascade
 )
 
 ##########
@@ -261,7 +272,10 @@ file(
 if(WIN32)
     # Can't use find_package(OpenCASCADE) as OpenCASCADEConfig.cmake is broken for Windows platform
     # See https://dev.opencascade.org/content/3rdparty-hard-coded-paths-when-building-against-opencascade
-    include(${PROJECT_SOURCE_DIR}/cmake/OpenCascadeWin.cmake)
+    set(OpenCASCADE_FOUND TRUE)
+    set(OpenCASCADE_INCLUDE_DIR "G:/vcpkg/installed/x64-windows/include/opencascade")
+    set(OpenCASCADE_LIBRARY_DIR "G:/vcpkg/installed/x64-windows/lib")
+    set(OpenCASCADE_BINARY_DIR "G:/vcpkg/installed/x64-windows/bin")
     if (OpenCASCADE_FOUND)
         # Add OpenCASCADE include directory
         list(APPEND Mayo_IncludeDirectories ${OpenCASCADE_INCLUDE_DIR})
@@ -275,7 +289,12 @@ if(WIN32)
             ${OpenCASCADE_BINARY_DIR}
             ${OpenCASCADE_LIBRARY_DIR}
             ${OpenCASCADE_3RDPARTY_BINARY_DIRS}
-        )    
+        )
+
+        list(APPEND MayoCore_LinkDirectories
+            G:/vcpkg/installed/x64-windows/lib
+            G:/vcpkg/installed/x64-windows/debug/lib
+        )
      endif()
 else()
     find_package(OpenCASCADE REQUIRED)
